@@ -1,0 +1,60 @@
+def smooth_sundays(row):
+    if row['Date'].day_name() == 'Sunday':
+        previous_week_start = row['Date'] - pd.DateOffset(7)
+        previous_week_monday = previous_week_start + pd.DateOffset(1)
+        previous_week_saturday = previous_week_start + pd.DateOffset(6)
+
+        # Check if previous week Monday exists, if not, use the Saturday value
+        if previous_week_monday not in df['Date'].values:
+            previous_week_monday = previous_week_saturday
+
+        # Calculate the average
+        c_average = (df[df['Date'] == previous_week_monday]['n_confirmed'].values[0] +
+                     df[df['Date'] == previous_week_saturday]['n_confirmed'].values[0]) / 2
+        r_average = (df[df['Date'] == previous_week_monday]['n_recovered'].values[0] +
+                     df[df['Date'] == previous_week_saturday]['n_recovered'].values[0]) / 2
+        d_average = (df[df['Date'] == previous_week_monday]['n_death'].values[0] +
+                     df[df['Date'] == previous_week_saturday]['n_death'].values[0]) / 2
+
+        return pd.Series({'n_confirmed': c_average, 'n_recovered': r_average, 'n_death': d_average})
+    return row
+
+df[['n_confirmed', 'n_recovered', 'n_death']] = df.apply(smooth_sundays, axis=1)
+
+print(df)
+####################################
+# Find rows with 'Sunday' in the 'date_name' column
+sunday_rows = df[df['date_name'] == 'Sunday']
+
+for index, sunday_row in sunday_rows.iloc[1:].iterrows():
+    previous_rows = df.loc[index-7:index-1]
+    # Calculate the average values for columns 'x', 'y', and 'z'
+    avg_c = math.ceil(previous_rows['n_confirmed'].mean())
+    avg_r = math.ceil(previous_rows['n_recovered'].mean())
+    avg_d = math.ceil(previous_rows['n_death'].mean())
+
+    # Replace the values in the current row
+    df.at[index, 'n_confirmed'] = avg_c
+    df.at[index, 'n_recovered'] = avg_r
+    df.at[index, 'n_death'] = avg_d
+
+print(df.head(35))
+############################################def smooth_sundays(df):
+    # Find rows with 'Sunday' in the 'date_name' column
+    sunday_rows = df[df['date_name'] == 'Sunday']
+
+    for index, sunday_row in sunday_rows.iloc[1:].iterrows():
+        previous_row = df.loc[index - 1]
+        next_row = df.loc[index + 1]
+
+        # Calculate the average values for columns 'n_confirmed', 'n_recovered', and 'n_death'
+        avg_c = math.ceil((previous_row['n_confirmed'] + next_row['n_confirmed']) / 2)
+        avg_r = math.ceil((previous_row['n_recovered'] + next_row['n_recovered']) / 2)
+        avg_d = math.ceil((previous_row['n_death'] + next_row['n_death']) / 2)
+
+        # Replace the values in the current row
+        df.at[index, 'n_confirmed'] = avg_c
+        df.at[index, 'n_recovered'] = avg_r
+        df.at[index, 'n_death'] = avg_d
+
+    return df
