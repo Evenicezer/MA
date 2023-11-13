@@ -1,54 +1,43 @@
 import pandas as pd
-from plot_save import add_date_name_column, plot_data_dcr
+from iprocessor import add_day_name_column, plot_data_dcr, add_date_name_column, smooth_sundays_ssmt,smooth_sundays_ssm,\
+    smooth_sundays_rolling_ssm_w3,smooth_sundays_rolling_ssm_w5,smooth_sundays_rolling_w5_r,smooth_sundays_rolling_w5_l,smooth_sundays_rolling_w7_l,\
+        smooth_sundays_rolling_w7_r,smooth_sundays_rolling_ssm_w3_smt
 import math
 
 
-# Assuming you have a DataFrame 'df' with 'Date' and columns 'n_confirmed', 'n_recovered', 'n_death'
+# ---------------------------------------------------------------------------- Importing data and reading in df
 df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
-df_ = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
-#adding name date column
-df = add_date_name_column(df)
-df_=add_date_name_column(df_)
-#print(df.head(35))
-#'n_confirmed', 'n_recovered', 'n_death'
+
+# -------------------------------------------------------------------------------Convert 'Date' column to datetime format
 df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
 
 
-# reduce the data frame by two rows from the top of df
-indices_to_remove = [1,2]
-df = df.drop(indices_to_remove)
-#---   df is dataframe that starts from monday; the first two rows were removed
-#----- df_ is dataframe that starts from saturday..
-def smooth_sundays(df):
-    # Find rows with 'Sunday' in the 'date_name' column
-    sunday_rows = df[df['date_name'] == 'Sunday']
-    print(sunday_rows)
+#------------------------------------------------------------------------------  Modification
+# Add the 'days' column
+df= add_day_name_column(df)
+df = add_date_name_column(df)
 
-    for index, sunday_row in sunday_rows.iloc[2:-2].iterrows():
-        previous_rows = df.loc[index - 2: index - 1]  # Take two rows up
-        next_rows = df.loc[index : index + 2]  # Take two rows down
-        print(previous_rows['n_recovered'], previous_rows['n_confirmed'],previous_rows['n_death'] , sep='/n')
+# Drop the first two rows
+#df = df.iloc[2:]
+#-------------------------------------------------------------------------------  Processing row data'assuming we have run the add_day_name_column function
+
+#print(smooth_sundays_ssmt(df)[['Date','n_recovered','n_confirmed','n_confirmed']].head(20))
+
+#--------------------------------------------------------------------------------
 
 
-        # Calculate the average values for columns 'n_confirmed', 'n_recovered', and 'n_death'
-        avg_c = (previous_rows['n_confirmed'] + next_rows['n_confirmed']).mean()
-        #print(f'avg_c_before: {avg_c}')
-        avg_r = sum(previous_rows['n_recovered'] + next_rows['n_recovered']) / len(previous_rows['n_recovered'] + next_rows['n_recovered'])
-        avg_d = sum(previous_rows['n_death'] + next_rows['n_death']) / len(previous_rows['n_death'] + next_rows['n_death'])
-
-        # Replace the values in the current row
-        df.at[index, 'n_confirmed'] = avg_c
-        df.at[index, 'n_recovered'] = avg_r
-        df.at[index, 'n_death'] = avg_d
-        #print(f'avg_c: {avg_d}')
-    return df
-
-#df_smoothed = smooth_sundays(df)
-# Print the modified DataFrame
-#print(df_smoothed.head(35))
-
-print(smooth_sundays(df))
-# plotting
-#plot_data_dcr(smooth_sundays(df),'n_death','n_confirmed','n_recovered','smoothed_m_a_2_2')
+#------------------------------------------------------------------------------- plotting
+plot_data_dcr(df,'n_death','n_confirmed','n_recovered','original')
+plot_data_dcr(smooth_sundays_ssmt(df),'n_death','n_confirmed','n_recovered','smoothed_ssmt')
+plot_data_dcr(smooth_sundays_ssm(df),'n_death','n_confirmed','n_recovered','smoothed_ssm')
+plot_data_dcr(smooth_sundays_rolling_ssm_w3(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_ssm_w3')
+plot_data_dcr(smooth_sundays_rolling_ssm_w5(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_fssmt_w5')
+plot_data_dcr(smooth_sundays_rolling_ssm_w3_smt(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_smt_w3')
+plot_data_dcr(smooth_sundays_rolling_w7_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_r')
+plot_data_dcr(smooth_sundays_rolling_w5_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_r')
+plot_data_dcr(smooth_sundays_rolling_w7_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_l')
+plot_data_dcr(smooth_sundays_rolling_w5_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_l')
+#
 #plot_data_dcr(df_,'n_death','n_confirmed','n_recovered',)
 
+#(smooth_sundays(df))['n_recovered'].plot()

@@ -58,3 +58,55 @@ print(df.head(35))
         df.at[index, 'n_death'] = avg_d
 
     return df
+#############################################################
+import pandas as pd
+from plot_save import add_date_name_column, plot_data_dcr
+import math
+
+
+# Assuming you have a DataFrame 'df' with 'Date' and columns 'n_confirmed', 'n_recovered', 'n_death'
+df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+df_ = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+#adding name date column
+df = add_date_name_column(df)
+df_=add_date_name_column(df_)
+def mean_of_values_2(**kwargs):
+    values = kwargs.values()
+    return sum(values) / 2
+#print(df.columns)
+# Identify rows with Sunday in the 'date_name' column
+#sunday_rows = df[df['date_name'] == 'Sunday']
+
+
+
+#df.loc[sunday_rows.index, 'value'] = None
+
+# Apply the rolling method to calculate the mean with a window size of 3, centered on 'date_name'
+df['mean_recovered'] = df['n_recovered'].rolling(window=3, center=True, min_periods=2,step=7).sum()
+df['mean_confirmed'] = df['n_confirmed'].rolling(window=3, center=True, min_periods=2 ,step=7).sum()
+df['mean_death'] = df['n_death'].rolling(window=3, center=True, min_periods=2,step=7).sum()
+# Divide the resulting values by 2
+df['mean_recovered'] /= 2
+df['mean_confirmed'] /= 2
+df['mean_death'] /= 2
+print(df.head(20))
+########################################################
+# Assuming you have a DataFrame 'df' with 'Date' and columns 'n_confirmed', 'n_recovered', 'n_death'
+df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+df_ = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+#adding name date column
+df = add_date_name_column(df)
+df_=add_date_name_column(df_)
+#print(df.head(35))
+#'n_confirmed', 'n_recovered', 'n_death'
+df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
+
+
+# reduce the data frame by two rows from the top of df
+indices_to_remove = [1,2]
+df = df.drop(indices_to_remove)
+#---   df is dataframe that starts from monday; the first two rows were removed
+#----- df_ is dataframe that starts from saturday..
+
+df_numb_date = pd.Series(range(1, len(df_['Date']) + 1) ,name=df_['days'],df_['Date'].index)
+#df_['days']=
