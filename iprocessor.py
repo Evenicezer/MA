@@ -1,8 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-import numpy as np
-from matplotlib.ticker import FixedLocator, NullFormatter
+
 
 
 
@@ -17,7 +16,7 @@ def add_day_name_column(df):
     return df
 #--------------------------------------
 def add_date_name_column(df):
-    df['days'] = pd.Series(range(0, len(df)), index=df.index)#(range(1, len(df)+1)
+    df['days'] = pd.Series(range(1, len(df) + 1), index=df.index)
     return df
 #--------------------------------------
 def smooth_sundays_ssmt(df):
@@ -215,8 +214,6 @@ def plot_data_dcr(df, column_d: str, column_c: str, column_r: str, output_filena
     ax.set_title('COVID-19 Deaths and Cases Over Time')
 
     plt.xticks(rotation=45)
-    #ax = plt.gca()
-    #ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 30000, 2000)))
 
     ax.legend()
 
@@ -233,10 +230,10 @@ import matplotlib.pyplot as plt
 
 def plot_data_dcr_multi(df,df3,df5,df7, column_:str,output_filename=None):
     fig, ax = plt.subplots(figsize=(15, 9))
-    ax.plot(df['days'], df[column_], label='origin', color='red')
-    ax.plot(df['days'], df3[column_], label='w3_r', color='blue')
-    ax.plot(df['days'], df5[column_], label='w5_r', color='orange')
-    ax.plot(df['days'], df7[column_], label='w7_r', color='yellow')
+    ax.plot(df['Date'], df[column_], label='origin', color='red')
+    ax.plot(df['Date'], df3[column_], label='w3_r', color='blue')
+    ax.plot(df['Date'], df5[column_], label='w5_r', color='orange')
+    ax.plot(df['Date'], df7[column_], label='w7_r', color='yellow')
 
     ax.set_xlabel('Days')
     ax.set_ylabel('Count')
