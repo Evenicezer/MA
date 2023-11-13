@@ -150,7 +150,7 @@ def smooth_sundays_rolling_w7_r(df):
 
     return df
 
-
+#---------------------------------------------
 def smooth_sundays_rolling_w7_l(df):
     # Apply the rolling method
     df['rolling_mean_r'] = df['n_recovered'].rolling(window=7, center=True, min_periods=1, closed='left').mean()
@@ -202,13 +202,14 @@ def smooth_sundays_rolling_w5_l(df):
     #df = df.drop(columns='rolling_mean')
 
     return df
+#-----------------------------------------------------
 def plot_data_dcr(df, column_d: str, column_c: str, column_r: str, output_filename=None):
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(df['Date'], df[column_d], label='Daily Deaths', color='red')
-    ax.plot(df['Date'], df[column_c], label='Daily Confirmed', color='blue')
-    ax.plot(df['Date'], df[column_r], label='Daily Recovered', color='orange')
+    ax.plot(df['days'], df[column_d], label='Daily Deaths', color='red')# use either Date or days
+    ax.plot(df['days'], df[column_c], label='Daily Confirmed', color='blue')
+    ax.plot(df['days'], df[column_r], label='Daily Recovered', color='orange')
 
-    ax.set_xlabel('Date')
+    ax.set_xlabel('Days')
     ax.set_ylabel('Count')
     ax.set_title('COVID-19 Deaths and Cases Over Time')
 
@@ -223,9 +224,41 @@ def plot_data_dcr(df, column_d: str, column_c: str, column_r: str, output_filena
     else:
         # Display the plot
         plt.show()
+#---------------------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
+
+def plot_data_dcr_multi(df,df3,df5,df7, column_:str,output_filename=None):
+    fig, ax = plt.subplots(figsize=(15, 9))
+    ax.plot(df['Date'], df[column_], label='origin', color='red')
+    ax.plot(df['Date'], df3[column_], label='w3_r', color='blue')
+    ax.plot(df['Date'], df5[column_], label='w5_r', color='orange')
+    ax.plot(df['Date'], df7[column_], label='w7_r', color='yellow')
+
+    ax.set_xlabel('Days')
+    ax.set_ylabel('Count')
+    ax.set_title('COVID-19 Deaths and Cases Over Time')
+
+    plt.xticks(rotation=45)
+
+    ax.legend()
+
+    plt.tight_layout()
+
+    if output_filename:
+        # Save the image to the specified output filename
+        plt.savefig(output_filename)
+    else:
+        # Display the plot
+        plt.show()
+
+
+
+
+#----------------------------------------------------------------------------------------
 if __name__=='__main__':
     plot_data_dcr()
+    plot_data_dcr_multi()
     add_day_name_column()
     add_date_name_column()
     smooth_sundays_ssmt()

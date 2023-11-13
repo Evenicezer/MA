@@ -1,7 +1,7 @@
 import pandas as pd
 from iprocessor import add_day_name_column, plot_data_dcr, add_date_name_column, smooth_sundays_ssmt,smooth_sundays_ssm,\
     smooth_sundays_rolling_ssm_w3,smooth_sundays_rolling_ssm_w5,smooth_sundays_rolling_w5_r,smooth_sundays_rolling_w5_l,smooth_sundays_rolling_w7_l,\
-        smooth_sundays_rolling_w7_r,smooth_sundays_rolling_ssm_w3_smt
+        smooth_sundays_rolling_w7_r,smooth_sundays_rolling_ssm_w3_smt,plot_data_dcr_multi
 import math
 
 
@@ -41,3 +41,11 @@ plot_data_dcr(smooth_sundays_rolling_w5_l(df),'n_death','n_confirmed','n_recover
 #plot_data_dcr(df_,'n_death','n_confirmed','n_recovered',)
 
 #(smooth_sundays(df))['n_recovered'].plot()
+df_smoothed_rolling_w7_r = smooth_sundays_rolling_w7_r(df)
+df_smoothed_rolling_w5_r = smooth_sundays_rolling_w5_r(df)
+df_origin = df
+df_smoothed_rolling_w3_r = smooth_sundays_rolling_ssm_w3(df)
+
+plot_data_dcr_multi(
+    [df_origin, df_smoothed_rolling_w3_r, df_smoothed_rolling_w5_r,df_smoothed_rolling_w7_r ],
+    [ 'origin', 'w3_r', 'w5_r','w7_r'],output_filename='multi.png')
