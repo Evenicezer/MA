@@ -110,3 +110,21 @@ df = df.drop(indices_to_remove)
 
 df_numb_date = pd.Series(range(1, len(df_['Date']) + 1) ,name=df_['days'],df_['Date'].index)
 #df_['days']=
+
+############################################
+#Plot the results
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[0], label='S')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[1], label='E')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[2], label='A')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[3], label='I')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[4], label='F')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[5], label='R')
+plt.plot(solution_seaifrd.t, solution_seaifrd.y[6], label='D')
+plt.scatter(df_observed['days'], df_observed['confirmed'], color='red', label='Observed Confirmed', marker='.')
+plt.scatter(df_observed['days'], df_observed['recovered'], color='green', label='Observed Recovered', marker='.')
+plt.scatter(df_observed['days'], df_observed['death'], color='black', label='Observed Death', marker='.')
+plt.xlabel('Days')
+plt.ylabel('Population')
+plt.title('SEAIRFD Model with Observed Data and Estimated Parameters')
+plt.legend()
+plt.show()

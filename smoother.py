@@ -1,4 +1,8 @@
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.ticker import FixedLocator, NullFormatter
 from iprocessor import add_day_name_column, plot_data_dcr, add_date_name_column, smooth_sundays_ssmt,smooth_sundays_ssm,\
     smooth_sundays_rolling_ssm_w3,smooth_sundays_rolling_ssm_w5,smooth_sundays_rolling_w5_r,smooth_sundays_rolling_w5_l,smooth_sundays_rolling_w7_l,\
         smooth_sundays_rolling_w7_r,smooth_sundays_rolling_ssm_w3_smt,plot_data_dcr_multi
@@ -27,25 +31,55 @@ df = add_date_name_column(df)
 
 
 #------------------------------------------------------------------------------- plotting
-plot_data_dcr(df,'n_death','n_confirmed','n_recovered','original')
-plot_data_dcr(smooth_sundays_ssmt(df),'n_death','n_confirmed','n_recovered','smoothed_ssmt')
-plot_data_dcr(smooth_sundays_ssm(df),'n_death','n_confirmed','n_recovered','smoothed_ssm')
-plot_data_dcr(smooth_sundays_rolling_ssm_w3(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_ssm_w3')
-plot_data_dcr(smooth_sundays_rolling_ssm_w5(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_fssmt_w5')
-plot_data_dcr(smooth_sundays_rolling_ssm_w3_smt(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_smt_w3')
-plot_data_dcr(smooth_sundays_rolling_w7_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_r')
-plot_data_dcr(smooth_sundays_rolling_w5_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_r')
-plot_data_dcr(smooth_sundays_rolling_w7_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_l')
-plot_data_dcr(smooth_sundays_rolling_w5_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_l')
-#
+#plot_data_dcr(df,'n_death','n_confirmed','n_recovered','original')
+#plot_data_dcr(smooth_sundays_ssmt(df),'n_death','n_confirmed','n_recovered','smoothed_ssmt')
+#plot_data_dcr(smooth_sundays_ssm(df),'n_death','n_confirmed','n_recovered','smoothed_ssm')
+#plot_data_dcr(smooth_sundays_rolling_ssm_w3(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_ssm_w3')
+#plot_data_dcr(smooth_sundays_rolling_ssm_w5(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_fssmt_w5')
+#plot_data_dcr(smooth_sundays_rolling_ssm_w3_smt(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_smt_w3')
+#plot_data_dcr(smooth_sundays_rolling_w7_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_r')
+#plot_data_dcr(smooth_sundays_rolling_w5_r(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_r')
+#plot_data_dcr(smooth_sundays_rolling_w7_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w7_l')
+#plot_data_dcr(smooth_sundays_rolling_w5_l(df),'n_death','n_confirmed','n_recovered','smoothed_rolling_w5_l')
+#plot_data_dcr(smooth_sundays_rolling_w5_l(df),'n_death','n_confirmed','n_recovered','s')#moothed_rolling_w5_l')
 #plot_data_dcr(df_,'n_death','n_confirmed','n_recovered',)
 
 #(smooth_sundays(df))['n_recovered'].plot()
-df_smoothed_rolling_w7_r = smooth_sundays_rolling_w7_r(df)
-df_smoothed_rolling_w5_r = smooth_sundays_rolling_w5_r(df)
-df_origin = df
-df_smoothed_rolling_w3_r = smooth_sundays_rolling_ssm_w3(df)
+#df_smoothed_rolling_w7_r = smooth_sundays_rolling_w7_r(df)
+#df_smoothed_rolling_w5_r = smooth_sundays_rolling_w5_r(df)
+#df_origin = df
+#df_smoothed_rolling_w3_r = smooth_sundays_rolling_ssm_w3(df)
 
-plot_data_dcr_multi(
-    [df_origin, df_smoothed_rolling_w3_r, df_smoothed_rolling_w5_r,df_smoothed_rolling_w7_r ],
-    [ 'origin', 'w3_r', 'w5_r','w7_r'],output_filename='multi.png')
+#plot_data_dcr_multi(df_origin, df_smoothed_rolling_w3_r, df_smoothed_rolling_w5_r,df_smoothed_rolling_w7_r,'n_death' )
+
+#----------------------------------------------------------------------------------------------
+
+# Use Seaborn color palette for better color choices
+sns.set_palette("husl")
+
+# Create a figure and axis with a larger size
+fig, ax = plt.subplots(figsize=(15, 9))
+
+# Plot the data with different line styles and colors
+ax.plot(df['days'], df['n_recovered'], label='Original', linestyle='-', linewidth=3)
+ax.plot(df['days'], smooth_sundays_rolling_ssm_w3_smt(df)['n_recovered'], label='Rolling W3', linestyle='-', linewidth=1)
+ax.plot(df['days'], smooth_sundays_rolling_w5_l(df)['n_recovered'], label='Rolling W5', linestyle='-', linewidth=1)
+ax.plot(df['days'], smooth_sundays_rolling_w7_l(df)['n_recovered'], label='Rolling W7', linestyle='-', linewidth=2)
+
+# Set axis labels and title
+ax.set_xlabel("Days")
+ax.set_ylabel("Recovered Cases")
+ax.set_title("Comparative Analysis of Recovered Cases")
+
+# Add gridlines
+ax.grid(True, linestyle='--', alpha=0.7)
+
+# Adding legend with a slightly transparent background
+ax.legend(framealpha=0.8)
+
+# Save the figure
+#plt.savefig('o_w3-7_l_15_9_recovered')
+
+# Display the plot
+plt.show()
+#---------------
