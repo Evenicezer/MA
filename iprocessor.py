@@ -17,7 +17,7 @@ def add_day_name_column(df):
     return df
 #--------------------------------------
 def add_date_name_column(df):
-    df['days'] = pd.Series(range(1, len(df) + 1), index=df.index)
+    df['days'] = pd.Series(range(0, len(df)), index=df.index)#(range(1, len(df)+1)
     return df
 #--------------------------------------
 def smooth_sundays_ssmt(df):

@@ -61,15 +61,15 @@ sns.set_palette("husl")
 fig, ax = plt.subplots(figsize=(15, 9))
 
 # Plot the data with different line styles and colors
-ax.plot(df['days'], df['n_recovered'], label='Original', linestyle='-', linewidth=3)
-ax.plot(df['days'], smooth_sundays_rolling_ssm_w3_smt(df)['n_recovered'], label='Rolling W3', linestyle='-', linewidth=1)
-ax.plot(df['days'], smooth_sundays_rolling_w5_l(df)['n_recovered'], label='Rolling W5', linestyle='-', linewidth=1)
-ax.plot(df['days'], smooth_sundays_rolling_w7_l(df)['n_recovered'], label='Rolling W7', linestyle='-', linewidth=2)
+ax.plot(df['days'], df['n_confirmed'], label='Original', linestyle=':', linewidth=2, color='blue')
+ax.plot(df['days'], smooth_sundays_rolling_ssm_w3(df)['n_confirmed'], label='Rolling W3', linestyle='-', linewidth=1, color='orange')
+ax.plot(df['days'], smooth_sundays_rolling_w5_l(df)['n_confirmed'], label='Rolling W5', linestyle='-', linewidth=1, color= 'red')
+ax.plot(df['days'], smooth_sundays_rolling_w7_l(df)['n_confirmed'], label='Rolling W7', linestyle='-', linewidth=2, color='black')
 
 # Set axis labels and title
 ax.set_xlabel("Days")
-ax.set_ylabel("Recovered Cases")
-ax.set_title("Comparative Analysis of Recovered Cases")
+ax.set_ylabel("Confirmed Cases")
+ax.set_title("Comparative Analysis of Confirmed Cases")
 
 # Add gridlines
 ax.grid(True, linestyle='--', alpha=0.7)
@@ -78,7 +78,7 @@ ax.grid(True, linestyle='--', alpha=0.7)
 ax.legend(framealpha=0.8)
 
 # Save the figure
-#plt.savefig('o_w3-7_l_15_9_recovered')
+plt.savefig('o_w3-7_l_15_9_confirmed')
 
 # Display the plot
 plt.show()

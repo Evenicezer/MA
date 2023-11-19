@@ -82,24 +82,33 @@ def seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_popul
     print(solution)
     return solution#.y.flatten()
 
-def fit_seaifrd_model(t, initial_conditions,confirmed, recovered, death):
-    def objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
-                  exposed_period, asymptomatic_period, infectious_period, isolated_period,
-                  prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
-        temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
-                             exposed_period, asymptomatic_period, infectious_period,
-                             isolated_period, prob_asymptomatic,
-                             prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
-        return [temp.y[3],temp.y[5],temp.y[6]]
+def objective(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
+                         exposed_period, asymptomatic_period, infectious_period,
+                         isolated_period, prob_asymptomatic,
+                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
 
+    squared_diff = np.sum((df['n_confirmed'] - temp.y[3]) ** 2)
+    squared_diff += np.sum((df['n_recovered'] - temp.y[5]) ** 2)
+    squared_diff += np.sum((df['n_death'] - temp.y[6]) ** 2)
+    return squared_diff
 
-#
+def fit_seaifrd_model(t, initial_conditions, confirmed, recovered, death):
+    """Return SEAIFRD, the index position; 3 for confirmed, 5 for recovered, and 6 for dead"""
+
     # Initial parameter guesses
-    initial_guess = [1.0,initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
+    initial_guess = [1.0, initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
 
     # curve_fit to estimate parameters
-    params,_ = curve_fit(objective,t, np.concatenate([fit_seaifrd_model()]), p0=initial_guess)# since curve_fit is expecting target values ydata as a single array; and x=time
+    params, _ = curve_fit(objective, t, np.concatenate(df['n_confirmed', 'n_recovered', 'n_death']), p0=initial_guess)
 
+    return params
+
+def main_function(t, initial_conditions, confirmed, recovered, death):
+    params = fit_seaifrd_model(t, initial_conditions, confirmed, recovered, death)
+    # Perform any further operations with the obtained parameters or return them as needed
     return params
 
 # Estimate parameters
