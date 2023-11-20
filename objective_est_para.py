@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sklearn.metrics import curve_fit
 from scipy.integrate import solve_ivp
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
