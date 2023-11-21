@@ -25,9 +25,9 @@ mortality_infected = 0.01
 
 # Sample initial conditions-------------------------------------------------------
 S0 = total_population - 1
-E0 = 1
+E0 = 10
 A0 = 0
-I0 = 0
+I0 = 10
 F0 = 0
 R0 = 0
 D0 = 0
@@ -82,40 +82,87 @@ def seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_popul
     print(solution)
     return solution#.y.flatten()
 
-def fit_seaifrd_model(t, initial_conditions,confirmed, recovered, death):
-    def objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
-                  exposed_period, asymptomatic_period, infectious_period, isolated_period,
-                  prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
-        temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
-                             exposed_period, asymptomatic_period, infectious_period,
-                             isolated_period, prob_asymptomatic,
-                             prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
-        return [temp.y[3],temp.y[5],temp.y[6]]
+#def fit_seaifrd_model(t, initial_conditions,confirmed, recovered, death):
+'''def objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+                         exposed_period, asymptomatic_period, infectious_period,
+                         isolated_period, prob_asymptomatic,
+                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+    print(temp)
+    return [temp.y[3],temp.y[5],temp.y[6]]'''
 
 
 #
     # Initial parameter guesses
-    initial_guess = [1.0,initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
+    #initial_guess = [1.0,initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
 
     # curve_fit to estimate parameters
-    params,_ = curve_fit(objective,t, np.concatenate([fit_seaifrd_model()]), p0=initial_guess)# since curve_fit is expecting target values ydata as a single array; and x=time
-
-    return params
-
+    #params,_ = curve_fit(objective,t, np.concatenate([fit_seaifrd_model()]), p0=initial_guess)# since curve_fit is expecting target values ydata as a single array; and x=time
+    #params=0
+    #return params
+def objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+                         exposed_period, asymptomatic_period, infectious_period,
+                         isolated_period, prob_asymptomatic,
+                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+    #print(f' the name of the columns is: {type(temp)}')
+    return temp #[temp.y[5],temp.y[6]]
+print(objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected))
 # Estimate parameters
-estimated_params = fit_seaifrd_model(t, initial_conditions,df_observed['n_confirmed'], df_observed['n_recovered'], df_observed['n_death'])
+#estimated_params = fit_seaifrd_model(t, initial_conditions,df_observed['n_confirmed'], df_observed['n_recovered'], df_observed['n_death'])
 
 # Print the estimated parameters
-print("Estimated Parameters:", estimated_params)
+#print("Estimated Parameters:", estimated_params)
 
 # Integrate the SEAIRFD model with estimated parameters
-solution_seaifrd = solve_ivp(
-    derivative_rhs,
-    [0, tmax],
-    initial_conditions,
-    t_eval=t,
-    args=estimated_params,
-    method='RK45'
-)
+#solution_seaifrd = solve_ivp(
+#    derivative_rhs,
+#    [0, tmax],
+#    initial_conditions,
+#    t_eval=t,
+#    args=estimated_params,
+#    method='RK45'
+#)
 
 
+def parse_ivp_ode(return_from_objective):
+    """takes the function from the ode; and the index 5 and 6; represent the compartment
+    recovered and dead
+    return: np array of recovered and dead for dialy not commulative; so that we can fit"""
+    recovered,dead= return_from_objective.y[5],return_from_objective.y[6]
+    time_array= return_from_objective.t
+    recovered_difference= []
+    dead_difference= []
+    for t_index in range(1,len(time_array)):
+        #for recovered
+        recovered_t= recovered[t_index]
+        recovered_t_minus_1= recovered[t_index - 1]
+        recovered_difference.append(recovered_t - recovered_t_minus_1)
+        # for dead
+        death_t= dead[t_index]
+        death_t_minus_1= dead[t_index - 1]
+        dead_difference.append(death_t - death_t_minus_1)
+    return [np.array(recovered_difference),np.array(dead_difference)]
+
+return_from_objective= objective(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
+                   exposed_period, asymptomatic_period, infectious_period, isolated_period,
+                   prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+
+#print(f' here are the recovered and dead: {parse_ivp_ode(return_from_objective)}')
+array_recovered, array_dead= parse_ivp_ode(return_from_objective)
+print(f'from recovered array{array_recovered}')
+print(f'from dead array{array_dead}')
+
+#
+# Initial parameter guesses
+initial_guess = [1.0,initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
+
+# curve_fit to estimate parameters
+#params,_ = curve_fit(derivative_rhs,t, np.concatenate([array_recovered, array_dead]))# since curve_fit is expecting target values ydata as a single array; and x=time
+#print(params)

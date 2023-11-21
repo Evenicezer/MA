@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.metrics import curve_fit
 from scipy.integrate import solve_ivp
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
@@ -90,11 +89,11 @@ def objective(t, contacts, initial_conditions, transmission_prob, total_populati
                          exposed_period, asymptomatic_period, infectious_period,
                          isolated_period, prob_asymptomatic,
                          prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+    print(temp)
+    daily_recovered = temp.y[5]- temp.y[5]
+    daily_death = temp.y[6] - temp.y[6]
+    return [dialy_recovered, dialy_death]
 
-    squared_diff = np.sum((df['n_confirmed'] - temp.y[3]) ** 2)
-    squared_diff += np.sum((df['n_recovered'] - temp.y[5]) ** 2)
-    squared_diff += np.sum((df['n_death'] - temp.y[6]) ** 2)
-    return squared_diff
 
 def fit_seaifrd_model(t, initial_conditions, confirmed, recovered, death):
     """Return SEAIFRD, the index position; 3 for confirmed, 5 for recovered, and 6 for dead"""
@@ -103,8 +102,8 @@ def fit_seaifrd_model(t, initial_conditions, confirmed, recovered, death):
     initial_guess = [1.0, initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
 
     # curve_fit to estimate parameters
-    params, _ = curve_fit(objective, t, np.concatenate(df['n_confirmed', 'n_recovered', 'n_death']), p0=initial_guess)
-
+    #params, _ = curve_fit(objective, t, np.concatenate(['n_confirmed', 'n_recovered', 'n_death']), p0=initial_guess)
+    params=0
     return params
 
 def main_function(t, initial_conditions, confirmed, recovered, death):
