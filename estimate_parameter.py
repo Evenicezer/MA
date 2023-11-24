@@ -12,7 +12,7 @@ contacts = 1.0
 transmission_prob = 0.1
 total_population = 1000000
 reducing_transmission = 0.859
-exposed_period = 5
+exposed_period = 5# this is the incubation period
 asymptomatic_period = 14
 infectious_period = 14
 isolated_period = 21
@@ -111,9 +111,9 @@ def objective(t, contacts, initial_conditions,transmission_prob, total_populatio
                          prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
     #print(f' the name of the columns is: {type(temp)}')
     return temp #[temp.y[5],temp.y[6]]
-print(objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
-              exposed_period, asymptomatic_period, infectious_period, isolated_period,
-              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected))
+#print(objective(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+#              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+#              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected))
 # Estimate parameters
 #estimated_params = fit_seaifrd_model(t, initial_conditions,df_observed['n_confirmed'], df_observed['n_recovered'], df_observed['n_death'])
 
@@ -156,13 +156,48 @@ return_from_objective= objective(t, contacts, initial_conditions, transmission_p
 
 #print(f' here are the recovered and dead: {parse_ivp_ode(return_from_objective)}')
 array_recovered, array_dead= parse_ivp_ode(return_from_objective)
-print(f'from recovered array{array_recovered}')
-print(f'from dead array{array_dead}')
+#print(f'from recovered array{array_recovered}')
+#print(f'from dead array{array_dead}')
 
 #
 # Initial parameter guesses
 initial_guess = [1.0,initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
+def objective_function_(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+                         exposed_period, asymptomatic_period, infectious_period,
+                         isolated_period, prob_asymptomatic,
+                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
 
+    recovered = temp.y[5]
+    dead = temp.y[6]
+    daily_recovered = recovered(t) - recovered(t-1)
+    daily_dead = dead(t) - dead(t-1)
+    return [daily_recovered, daily_dead]
+def objective_function(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+              exposed_period, asymptomatic_period, infectious_period, isolated_period,
+              prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    temp = seaifrd_model(t, contacts, initial_conditions,transmission_prob, total_population, reducing_transmission,
+                         exposed_period, asymptomatic_period, infectious_period,
+                         isolated_period, prob_asymptomatic,
+                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+
+    recovered = temp.y[5]
+    dead = temp.y[6]
+    daily_recovered_ = []
+    dialy_death_ = []
+    for t_index in range(1, len(t)):
+        # for recovered
+        recovered_t = recovered[t_index]
+        recovered_t_minus_1 = recovered[t_index - 1]
+        daily_recovered_.append(recovered_t - recovered_t_minus_1)
+        # for dead
+        death_t = dead[t_index]
+        death_t_minus_1 = dead[t_index - 1]
+        dialy_death_.append(death_t - death_t_minus_1)
+    return [np.array(daily_recovered_), np.array(dialy_death_)]
+    
 # curve_fit to estimate parameters
-#params,_ = curve_fit(derivative_rhs,t, np.concatenate([array_recovered, array_dead]))# since curve_fit is expecting target values ydata as a single array; and x=time
-#print(params)
+params,_ = curve_fit(objective_function,t, np.concatenate([array_recovered, array_dead]))# since curve_fit is expecting target values ydata as a single array; and x=time
+print(params)
