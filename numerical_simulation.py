@@ -132,9 +132,6 @@ array_recovered, array_dead = parse_ivp_ode(return_from_objective)
 # print(f'from recovered array{array_recovered}')
 # print(f'from dead array{array_dead}')
 
-#
-# Initial parameter guesses
-initial_guess = [1.0, initial_conditions, 0.1, 1000000, 0.859, 5, 14, 14, 21, 0.3, 0.5, 0.2, 0.1, 0.02, 0.01]
 
 
 def objective_function_(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
