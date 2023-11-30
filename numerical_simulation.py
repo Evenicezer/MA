@@ -26,7 +26,7 @@ mortality_isolated = 0.02
 mortality_infected = 0.01
 
 # Sample initial conditions-------------------------------------------------------
-S0 = total_population - 1
+S0 = total_population - 20
 E0 = 10
 A0 = 0
 I0 = 10
@@ -161,7 +161,7 @@ def objective_function(t, contacts, initial_conditions, transmission_prob, total
     recovered = temp.y[5]
     dead = temp.y[6]
     daily_recovered_ = []
-    dialy_death_ = []
+    daily_death_ = []
     for t_index in range(1, len(t)):
         # for recovered
         recovered_t = recovered[t_index]
@@ -170,10 +170,24 @@ def objective_function(t, contacts, initial_conditions, transmission_prob, total
         # for dead
         death_t = dead[t_index]
         death_t_minus_1 = dead[t_index - 1]
-        dialy_death_.append(death_t - death_t_minus_1)
-    return [np.array(daily_recovered_), np.array(dialy_death_)]
+        daily_death_.append(death_t - death_t_minus_1)
+    return daily_recovered_
+#daily_recovered_,daily_death_= objective_function()
 
+#result_vector=(np.concatenate([x,y]))
+#print(result_vector)
 
 # curve_fit to estimate parameters
-params, _ = curve_fit(objective_function, t, np.concatenate([array_recovered, array_dead]))  # since curve_fit is expecting target values ydata as a single array; and x=time
+#print(len(t),len(array_dead))
+t_end = df_observed['days'].iloc[-1]
+
+# Create a sequence from 0 to t_end
+t_fit = np.arange(0, t_end + 1, 1)
+
+# Concatenate the sequence with itself to repeat from 0 to t_end
+t_fit_ = np.concatenate([t_fit, t_fit])
+#print(np.concatenate([array_recovered,array_dead]))
+
+
+params, _ = curve_fit(objective_function, t_fit, array_recovered)  # since curve_fit is expecting target values ydata as a single array; and x=time
 print(params)
