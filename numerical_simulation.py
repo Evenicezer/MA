@@ -26,8 +26,8 @@ mortality_isolated = 0.02
 mortality_infected = 0.01
 
 # Sample initial conditions-------------------------------------------------------
-S0 = total_population - 20
-E0 = 10
+S0 = total_population - 30
+E0 = 20
 A0 = 0
 I0 = 10
 F0 = 0
@@ -36,7 +36,7 @@ D0 = 0
 initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
 
 # Dataframe-------------------------------------------------
-df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_.csv')
 
 # -------------------------------------------------------------------------------Convert 'Date' column to datetime format
 df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
@@ -150,13 +150,29 @@ def objective_function_(t, contacts, initial_conditions, transmission_prob, tota
     return [daily_recovered, daily_dead]
 
 
-def objective_function(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
+def objective_function(t, contacts, transmission_prob, total_population, reducing_transmission,
                        exposed_period, asymptomatic_period, infectious_period, isolated_period,
                        prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected):
+    #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
+    contacts = 3.0
+    transmission_prob = 0.3649
+    total_population = 84000000
+    reducing_transmission = 0.764
+    exposed_period = 5.2  #
+    asymptomatic_period = 7
+    infectious_period = 3.7
+    #isolated_period = 11  # 11,23
+    prob_asymptomatic = 0.2
+    prob_quarant_inf = 0.05
+    test_asy = 0.171
+    #dev_symp = 0.125
+    mortality_isolated = 0.002
+    mortality_infected = 0.01
     temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
                          exposed_period, asymptomatic_period, infectious_period,
                          isolated_period, prob_asymptomatic,
                          prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
+
 
     recovered = temp.y[5]
     dead = temp.y[6]
@@ -182,12 +198,46 @@ def objective_function(t, contacts, initial_conditions, transmission_prob, total
 t_end = df_observed['days'].iloc[-1]
 
 # Create a sequence from 0 to t_end
-t_fit = np.arange(0, t_end + 1, 1)
-
+t_fit = np.arange(0, tmax, 1)
+#t_fitt = np.arange(0,t,1)
 # Concatenate the sequence with itself to repeat from 0 to t_end
-t_fit_ = np.concatenate([t_fit, t_fit])
-#print(np.concatenate([array_recovered,array_dead]))
+#t_fit_ = np.concatenate([t_fit, t_fit])
+#t_fit_ = t_fit_[2:]
 
+recov_dead = np.concatenate([array_recovered,array_dead])
 
-params, _ = curve_fit(objective_function, t_fit, array_recovered)  # since curve_fit is expecting target values ydata as a single array; and x=time
-print(params)
+#print(f'length of the time t_fit_{len(t_fit_)}, tmax{(tmax)}, time t {len(t)},time t_fit_{len(t_fit)}, recov_dead{len(recov_dead)}')
+params_r, _ = curve_fit(objective_function, t_fit, array_recovered)  # since curve_fit is expecting target values ydata as a single array; and x=time
+params_d, _ = curve_fit(objective_function, t_fit, array_dead)
+#params_rd, _ = curve_fit(objective_function, t_fit_, recov_dead)
+#print(f'params:{params},\n,{type(params)}')
+
+# assigning back
+# List of names corresponding to each value in params
+param_names = ['contacts', 'transmission_prob', 'total_population', 'reducing_transmission',
+                       'exposed_period', 'asymptomatic_period', 'infectious_period', 'isolated_period',
+                       'prob_asymptomatic', 'prob_quarant_inf', 'test_asy', 'dev_symp', 'mortality_isolated', 'mortality_infected']
+
+param_dict_r = {}
+
+for name, value in zip(param_names, params_r):
+    param_dict_r[name] = value
+
+print(param_dict_r)
+#formatted_string = '\n'.join(f'{key} = {value}' for key, value in param_dict.items())
+#print(formatted_string)
+
+# for dead
+param_dict_d = {}
+for name, value in zip(param_names, params_d):
+    param_dict_d[name] = value
+
+print(param_dict_d)
+
+# for concantinated
+#param_dict_rd = {}
+#for name, value in zip(param_names, params_rd):
+#    param_dict_rd[name] = value
+
+#print(param_dict_rd)
+print(f'length of the time t_fit_{len(t_fit)}, tmax{(tmax)}, time t {len(t)},time t_fit_{len(t_fit)}, recov_dead{len(recov_dead)}')
