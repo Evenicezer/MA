@@ -5,6 +5,7 @@ import math
 
 
 
+
 def add_day_name_column(df):
 
     df['Date'] = pd.to_datetime(df['Date'])
@@ -226,7 +227,7 @@ def plot_data_dcr(df, column_d: str, column_c: str, column_r: str, output_filena
         plt.show()
 #---------------------------------------------------------------------------------
 
-import matplotlib.pyplot as plt
+
 
 def plot_data_dcr_multi(df,df3,df5,df7, column_:str,output_filename=None):
     fig, ax = plt.subplots(figsize=(15, 9))

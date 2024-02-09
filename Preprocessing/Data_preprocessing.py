@@ -6,14 +6,14 @@ import warnings
 warnings.filterwarnings('ignore')
 
 #--------------------------------
-json_file=r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\cases_all_germany.json'
+json_file=r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\cases_all_germany.json'
 df = pd.read_json(json_file)
 df = df.sort_values(by='Date', ascending=True)
 df
 
 #------------------------------------
-start_date = '2020-10-10'
-end_date = '2021-07-10'
+start_date = '2020-04-30'
+end_date = '2020-10-30'
 df_by_date=df.loc[(df['Date'] >= start_date) & (df['Date'] <= end_date)]
 #--------------------------------------------------------------------------------
 def plot_data_dcr(df, column_d: str, column_c: str, column_r: str, output_filename=None):
@@ -70,7 +70,7 @@ w_df['Infection_case'].iloc[:num_values_to_copy] = w_df['n_confirmed'].iloc[star
 f_w_df = w_df.iloc[:-5]  #filtered dataframe; since the last 5 rows of the
 
 f_w_df['Infection_case'] = f_w_df['Infection_case'].astype(int)
-f_w_df.to_csv('German_case_.csv', index=False)
+f_w_df.to_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_wave_4to10.csv', index=False)
 f_w_df.tail(20)
 #--------------------------------------------------------------------------------
 nan_count =f_w_df['Infection_case'].isna().sum()

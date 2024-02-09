@@ -2,17 +2,44 @@ import numpy as np
 import pandas as pd
 from scipy.integrate import solve_ivp
 from scipy.optimize import curve_fit
-import matplotlib.pyplot as plt
+from utility_intilization import get_value_by_date
 from iprocessor import add_day_name_column, plot_data_dcr, add_date_name_column, smooth_sundays_ssmt, \
     smooth_sundays_ssm, \
     smooth_sundays_rolling_ssm_w3, smooth_sundays_rolling_ssm_w5, smooth_sundays_rolling_w5_r, \
     smooth_sundays_rolling_w5_l, smooth_sundays_rolling_w7_l, \
     smooth_sundays_rolling_w7_r, smooth_sundays_rolling_ssm_w3_smt, plot_data_dcr_multi
 
+# Dataframe------------------------------------------------------------------------------------------------------------
+#German_case_wave_1.csv
+#German_case_wave_2.csv
+#German_case_wave_3.csv
+#German_case_wave_4.csv
+#German_case_wave_1to4.csv
+#German_case_wave_4to10.csv
+
+df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_wave_1to4.csv')
+
+# -------------------------------------------------------------------------------Convert 'Date' column to datetime format
+df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
+
+# ------------------------------------------------------------------------------  Modification
+# Add the 'days' column
+df = add_day_name_column(df)
+df = add_date_name_column(df)
+# ----------------------------------------------------------------------------- second modification with w7_l
+df_observed = smooth_sundays_rolling_w7_l(df)
+#df_observed.columns
+"""'Date', 'Confirmed', 'Deaths', 'Recovered', 'n_confirmed', 'n_death',
+       'n_recovered', 'Infection_case', 'date_name', 'days', 'rolling_mean_r',
+       'rolling_mean_c', 'rolling_mean_d'"""
+some_random_value_deaths = get_value_by_date('2020-05-20',df_observed,'Deaths')
+print(some_random_value_deaths)
+# -----------------------------------------------------------------------------------------------------
+
 # Sample parameters,
 contacts = 1.0
 transmission_prob = 0.1
-total_population = 1000000
+total_population = 8000000
 reducing_transmission = 0.859
 exposed_period = 5  # this is the incubation period
 asymptomatic_period = 14
@@ -26,28 +53,20 @@ mortality_isolated = 0.02
 mortality_infected = 0.01
 
 # Sample initial conditions-------------------------------------------------------
-S0 = total_population - 30
-E0 = 20
-A0 = 0
-I0 = 10
-F0 = 0
-R0 = 0
-D0 = 0
+
+E0  = (1 / (1 - prob_asymptomatic)) * (get_value_by_date('2020-05-25', df_observed, 'Confirmed') - get_value_by_date('2020-05-22', df_observed, 'Confirmed'))
+A0  = (prob_asymptomatic / (1 - prob_asymptomatic)) * (get_value_by_date('2020-05-22', df_observed, 'Confirmed') - get_value_by_date('2020-05-17', df_observed, 'Confirmed'))
+I0 = get_value_by_date('2020-05-20', df_observed, 'n_confirmed')
+F0 = prob_quarant_inf * I0
+R0 = get_value_by_date('2020-05-20',df_observed,'n_recovered')
+D0 = get_value_by_date('2020-05-20',df_observed,'n_death')
+S0 = total_population - E0 - A0 - I0 - R0 - D0 - F0
+
+# Print the results
+print(f'exposed_value: {E0}, asymptomatic_value: {A0 }, infection_value: {I0}, recovered:{R0}, death:{D0}, isolated:{F0}, susceptible:{S0}')
 initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
 
-# Dataframe-------------------------------------------------
-df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_.csv')
-
-# -------------------------------------------------------------------------------Convert 'Date' column to datetime format
-df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
-
-# ------------------------------------------------------------------------------  Modification
-# Add the 'days' column
-df = add_day_name_column(df)
-df = add_date_name_column(df)
-# ----------------------------------------------------------------------------- second modification with w7_l
-df_observed = smooth_sundays_rolling_w7_l(df)
-# -----------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------
 # Taking 'days' time column from dataframe
 t = np.array(df_observed['days'])
 tmax = len(t)
@@ -60,8 +79,7 @@ def derivative_rhs(t, X, contacts, transmission_prob, total_population, reducing
     derivS = - contacts * transmission_prob * S * (I + reducing_transmission * A) / total_population
     derivE = contacts * transmission_prob * S * (I + reducing_transmission * A) / total_population - E / exposed_period
     derivA = prob_asymptomatic * E / exposed_period - A / asymptomatic_period
-    derivI = (
-                         1 - prob_asymptomatic) * E / exposed_period + dev_symp * A / asymptomatic_period - I / infectious_period  # +
+    derivI = (1 - prob_asymptomatic) * E / exposed_period + dev_symp * A / asymptomatic_period - I / infectious_period  # +
     derivF = prob_quarant_inf * I / infectious_period - F / isolated_period + test_asy * A / asymptomatic_period  # prob_isolated_asy*A/asymptomatic_period
     derivR = (1 - prob_quarant_inf - mortality_infected) * I / infectious_period + (
                 1 - mortality_isolated) * F / isolated_period + (
@@ -266,10 +284,6 @@ for name, value in zip(param_names, params_d):
 
 print(param_dict_d)
 
-# for concantinated
-#param_dict_rd = {}
-#for name, value in zip(param_names, params_rd):
-#    param_dict_rd[name] = value
 
 #print(param_dict_rd)
-print(f'length of the time t_fit_{len(t_fit)}, tmax{(tmax)}, time t {len(t)},time t_fit_{len(t_fit)}, recov_dead{len(recov_dead)}')
+#print(f'length of the time t_fit_{len(t_fit)}, tmax{(tmax)}, time t {len(t)},time t_fit_{len(t_fit)}, recov_dead{len(recov_dead)}')
