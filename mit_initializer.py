@@ -37,20 +37,20 @@ print(some_random_value_deaths)
 # -----------------------------------------------------------------------------------------------------
 
 # Sample parameters,
-contacts = 1.0
-transmission_prob = 0.1
+contacts = 4.6 # mean value, from the covimod
+transmission_prob = 0.11
 total_population = 8000000
 reducing_transmission = 0.859
-exposed_period = 5  # this is the incubation period
-asymptomatic_period = 14
-infectious_period = 14
-isolated_period = 21
-prob_asymptomatic = 0.3
-prob_quarant_inf = 0.5
+exposed_period = 5.2  # this is the incubation period
+asymptomatic_period = 14  #[3,14]
+infectious_period = 7 # [5.6,8.5]
+isolated_period = 14 #21
+prob_asymptomatic = 0.25
+prob_quarant_inf = 0.81 #0.5
 test_asy = 0.2
-dev_symp = 0.1
+dev_symp = 0.75 # [0.75,0.85]
 mortality_isolated = 0.02
-mortality_infected = 0.01
+mortality_infected = 0.039
 
 # Sample initial conditions-------------------------------------------------------
 
@@ -81,8 +81,7 @@ def derivative_rhs(t, X, contacts, transmission_prob, total_population, reducing
     derivA = prob_asymptomatic * E / exposed_period - A / asymptomatic_period
     derivI = (1 - prob_asymptomatic) * E / exposed_period + dev_symp * A / asymptomatic_period - I / infectious_period  # +
     derivF = prob_quarant_inf * I / infectious_period - F / isolated_period + test_asy * A / asymptomatic_period  # prob_isolated_asy*A/asymptomatic_period
-    derivR = (1 - prob_quarant_inf - mortality_infected) * I / infectious_period + (
-                1 - mortality_isolated) * F / isolated_period + (
+    derivR = (1 - prob_quarant_inf - mortality_infected) * I / infectious_period + (1 - mortality_isolated) * F / isolated_period + (
                          1 - dev_symp - test_asy) * A / asymptomatic_period  # (1-prob_isolated_asy)*A / asymptomatic_period
     derivD = (mortality_infected) * I / infectious_period + mortality_isolated * F / isolated_period
     return np.array([derivS, derivE, derivA, derivI, derivF, derivR, derivD])
