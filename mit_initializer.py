@@ -32,8 +32,12 @@ df_observed = smooth_sundays_rolling_w7_l(df)
 """'Date', 'Confirmed', 'Deaths', 'Recovered', 'n_confirmed', 'n_death',
        'n_recovered', 'Infection_case', 'date_name', 'days', 'rolling_mean_r',
        'rolling_mean_c', 'rolling_mean_d'"""
-some_random_value_deaths = get_value_by_date('2020-05-20',df_observed,'Deaths')
-print(some_random_value_deaths)
+#some_random_value_deaths = get_value_by_date('2020-05-20',df_observed,'Deaths')
+exposed_value_date = get_value_by_date('2020-04-30',df_observed,'n_confirmed')
+symptomatic_infected_value_date = get_value_by_date('2020-05-05',df_observed,'n_confirmed')
+recovered_values_date = get_value_by_date('2020-05-05',df_observed,'n_recovered')
+death_values_date = get_value_by_date('2020-05-05',df_observed,'n_death')
+#print(f'{some_random_value_deaths} value for death random')
 # -----------------------------------------------------------------------------------------------------
 
 # Sample parameters,
@@ -167,16 +171,16 @@ def objective_function_(t, contacts, initial_conditions, transmission_prob, tota
     return [daily_recovered, daily_dead]
 
 
-def objective_function(t,  isolated_period ):
+def objective_function(t,  transmission_prob ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
     contacts = 3.0
-    transmission_prob = 0.3649
+    #transmission_prob = 0.3649
     total_population = 84000000
     reducing_transmission = 0.764
     exposed_period = 5.2  #
     asymptomatic_period = 7
     infectious_period = 3.7
-    #isolated_period = 11  # 11,23
+    isolated_period = 14  # 11,23
     prob_asymptomatic = 0.2
     prob_quarant_inf = 0.05
     test_asy = 0.171
@@ -203,16 +207,16 @@ def objective_function(t,  isolated_period ):
         death_t_minus_1 = dead[t_index - 1]
         daily_death_.append(death_t - death_t_minus_1)
     return daily_recovered_
-def objective_function_dead(t,  isolated_period ):
+def objective_function_dead(t,  transmission_prob ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
     contacts = 3.0
-    transmission_prob = 0.3649
+    #transmission_prob = 0.3649
     total_population = 84000000
     reducing_transmission = 0.764
     exposed_period = 5.2  #
     asymptomatic_period = 7
     infectious_period = 3.7
-    #isolated_period = 11  # 11,23
+    isolated_period = 14  # 11,23
     prob_asymptomatic = 0.2
     prob_quarant_inf = 0.05
     test_asy = 0.171
@@ -265,7 +269,7 @@ params_d, _ = curve_fit(objective_function_dead, t_fit, array_dead)
 
 # assigning back
 # List of names corresponding to each value in params
-param_names = [ 'isolated_period']
+param_names = [ 'transmission_prob']
 
 param_dict_r = {}
 

@@ -1,9 +1,32 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import integrate
+from iprocessor import add_day_name_column,smooth_sundays_rolling_w7_l,add_date_name_column
+from utility_intilization import get_value_by_date
 #from numerical_simulation import param_dict_r as param_dict,t_fit
 
+#---------------------------------------------
+df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_wave_1to4.csv')
 
+# -------------------------------------------------------------------------------Convert 'Date' column to datetime format
+df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
+
+# ------------------------------------------------------------------------------  Modification
+# Add the 'days' column
+df = add_day_name_column(df)
+df = add_date_name_column(df)
+# ----------------------------------------------------------------------------- second modification with w7_l
+df_observed = smooth_sundays_rolling_w7_l(df)
+#df_observed.columns
+"""'Date', 'Confirmed', 'Deaths', 'Recovered', 'n_confirmed', 'n_death',
+       'n_recovered', 'Infection_case', 'date_name', 'days', 'rolling_mean_r',
+       'rolling_mean_c', 'rolling_mean_d'"""
+exposed_value_date = get_value_by_date('2020-04-30',df_observed,'n_confirmed')
+symptomatic_infected_value_date = get_value_by_date('2020-05-05',df_observed,'n_confirmed')
+recovered_values_date = get_value_by_date('2020-05-05',df_observed,'n_recovered')
+death_values_date = get_value_by_date('2020-05-05',df_observed,'n_death')
+#--------------------------------------------
 def derivative_rhs( X,t):
     S, E, A, I, F, R, D = X
     derivS = - contacts * transmission_prob * S * (I + reducing_transmission * A) / total_population
@@ -26,12 +49,12 @@ def derivative_rhs( X,t):
 
 
 total_population = 84000000  # Total number of individuals
-E0 = 20000
+E0 = exposed_value_date * 1.33 # [1.17,1.33]
 A0 = 0
-I0 = 100
+I0 = symptomatic_infected_value_date
 F0 = 0
-R0 = 0
-D0 = 0
+R0 = recovered_values_date
+D0 = death_values_date
 S0 = total_population - E0 - A0 - I0 - F0 - R0 - D0 # Susceptible individuals
 
 
@@ -49,20 +72,20 @@ dev_symp = param_dict['dev_symp']
 mortality_isolated = param_dict['mortality_isolated']
 mortality_infected = param_dict['mortality_infected']'''
 # ------------------------------------------------------replacing values
-contacts = 3.0
-transmission_prob = 0.3649
-total_population = 84000000
-reducing_transmission = 0.764
+contacts = 4.6 # mean value, from the covimod
+transmission_prob = 0.11
+#total_population = 8000000
+reducing_transmission = 0.859
 exposed_period = 5.2  # this is the incubation period
-asymptomatic_period = 7
-infectious_period = 3.7
-isolated_period =  14
-prob_asymptomatic = 0.2
-prob_quarant_inf = 0.05
-test_asy = 0.171
-dev_symp = 0.125
-mortality_isolated = 0.002
-mortality_infected = 0.01
+asymptomatic_period = 14  #[3,14]
+infectious_period = 7 # [5.6,8.5]
+isolated_period = 14 #21
+prob_asymptomatic = 0.25
+prob_quarant_inf = 0.81 #0.5
+test_asy = 0.2
+dev_symp = 0.75 # [0.75,0.85]
+mortality_isolated = 0.02
+mortality_infected = 0.039
 
 #tmax = t_fit  # maximum simulation day
 tmax = 269
