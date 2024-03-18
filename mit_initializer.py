@@ -43,10 +43,10 @@ death_values_date = get_value_by_date('2020-05-05',df_observed,'n_death')
 # Sample parameters,
 contacts = 4.6 # mean value, from the covimod
 transmission_prob = 0.11
-total_population = 8000000
+total_population = 84000000
 reducing_transmission = 0.859
 exposed_period = 5.2  # this is the incubation period
-asymptomatic_period = 14  #[3,14]
+asymptomatic_period = 6  #[3,14]
 infectious_period = 7 # [5.6,8.5]
 isolated_period = 14 #21
 prob_asymptomatic = 0.25
@@ -69,7 +69,46 @@ S0 = total_population - E0 - A0 - I0 - R0 - D0 - F0
 # Print the results
 print(f'exposed_value: {E0}, asymptomatic_value: {A0 }, infection_value: {I0}, recovered:{R0}, death:{D0}, isolated:{F0}, susceptible:{S0}')
 initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
+#---------------------------------------------------------------------------------------------------------
+# Sample initial conditions-------------------------------------------------------
 
+init_date = pd.to_datetime('2020-05-29')
+
+# check, if the choosen init_date exists in the dataframe
+
+if init_date < df['Date'].min() or init_date > df['Date'].max():
+    raise ValueError('The date is out of the range of the dataframe')
+
+# initialization of the compartments
+
+date_init = init_date.strftime('%Y-%m-%d')
+
+date_ec = (init_date + pd.Timedelta(days=exposed_period + asymptomatic_period)).strftime('%Y-%m-%d')
+
+date_c = (init_date + pd.Timedelta(days=asymptomatic_period)).strftime('%Y-%m-%d')
+
+date_i = (init_date - pd.Timedelta(days=infectious_period)).strftime('%Y-%m-%d')
+
+date_if = (init_date - pd.Timedelta(days=isolated_period + infectious_period)).strftime('%Y-%m-%d')
+
+E0 = (1 / (1 - prob_asymptomatic)) * (
+            get_value_by_date(date_ec, df_observed, 'Confirmed') - get_value_by_date(date_c, df_observed, 'Confirmed'))
+
+A0 = (1 / (1 - prob_asymptomatic)) * (
+            get_value_by_date(date_c, df_observed, 'Confirmed') - get_value_by_date(date_init, df_observed,
+                                                                                    'Confirmed'))
+
+I0 = prob_quarant_inf * (
+            get_value_by_date(date_i, df_observed, 'Confirmed') - get_value_by_date(date_if, df_observed, 'Confirmed'))
+
+F0 = get_value_by_date(init_date, df_observed, 'Confirmed') - get_value_by_date(date_i, df_observed, 'Confirmed')
+
+R0 = get_value_by_date(init_date, df_observed, 'Recovered')
+
+D0 = get_value_by_date(init_date, df_observed, 'Deaths')
+
+S0 = total_population - E0 - A0 - I0 - R0 - D0 - F0
+print(f'exposed_value: {E0}, asymptomatic_value: {A0 }, infection_value: {I0}, recovered:{R0}, death:{D0}, isolated:{F0}, susceptible:{S0}')
 #------------------------------------------------------------------------------------------------------
 # Taking 'days' time column from dataframe
 t = np.array(df_observed['days'])
@@ -171,22 +210,22 @@ def objective_function_(t, contacts, initial_conditions, transmission_prob, tota
     return [daily_recovered, daily_dead]
 
 
-def objective_function(t,  transmission_prob ):
+def objective_function(t,  contacts ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
-    contacts = 3.0
-    #transmission_prob = 0.3649
+    #contacts = 4.6  # mean value, from the covimod
+    transmission_prob = 0.11
     total_population = 84000000
-    reducing_transmission = 0.764
-    exposed_period = 5.2  #
-    asymptomatic_period = 7
-    infectious_period = 3.7
-    isolated_period = 14  # 11,23
-    prob_asymptomatic = 0.2
-    prob_quarant_inf = 0.05
-    test_asy = 0.171
-    dev_symp = 0.125
-    mortality_isolated = 0.002
-    mortality_infected = 0.01
+    reducing_transmission = 0.859
+    exposed_period = 5.2  # this is the incubation period
+    asymptomatic_period = 6  # [3,14]
+    infectious_period = 7  # [5.6,8.5]
+    isolated_period = 14  # 21
+    prob_asymptomatic = 0.25
+    prob_quarant_inf = 0.81  # 0.5
+    test_asy = 0.2
+    dev_symp = 0.75  # [0.75,0.85]
+    mortality_isolated = 0.02
+    mortality_infected = 0.039
     temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
                          exposed_period, asymptomatic_period, infectious_period,
                          isolated_period, prob_asymptomatic,
@@ -207,22 +246,22 @@ def objective_function(t,  transmission_prob ):
         death_t_minus_1 = dead[t_index - 1]
         daily_death_.append(death_t - death_t_minus_1)
     return daily_recovered_
-def objective_function_dead(t,  transmission_prob ):
+def objective_function_dead(t,  contacts ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
-    contacts = 3.0
-    #transmission_prob = 0.3649
+    #contacts = 4.6  # mean value, from the covimod
+    transmission_prob = 0.11
     total_population = 84000000
-    reducing_transmission = 0.764
-    exposed_period = 5.2  #
-    asymptomatic_period = 7
-    infectious_period = 3.7
-    isolated_period = 14  # 11,23
-    prob_asymptomatic = 0.2
-    prob_quarant_inf = 0.05
-    test_asy = 0.171
-    dev_symp = 0.125
-    mortality_isolated = 0.002
-    mortality_infected = 0.01
+    reducing_transmission = 0.859
+    exposed_period = 5.2  # this is the incubation period
+    asymptomatic_period = 6  # [3,14]
+    infectious_period = 7  # [5.6,8.5]
+    isolated_period = 14  # 21
+    prob_asymptomatic = 0.25
+    prob_quarant_inf = 0.81  # 0.5
+    test_asy = 0.2
+    dev_symp = 0.75  # [0.75,0.85]
+    mortality_isolated = 0.02
+    mortality_infected = 0.039
     temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
                          exposed_period, asymptomatic_period, infectious_period,
                          isolated_period, prob_asymptomatic,
@@ -269,7 +308,7 @@ params_d, _ = curve_fit(objective_function_dead, t_fit, array_dead)
 
 # assigning back
 # List of names corresponding to each value in params
-param_names = [ 'transmission_prob']
+param_names = ['contacts']
 
 param_dict_r = {}
 
