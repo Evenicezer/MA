@@ -72,7 +72,7 @@ mortality_infected = 0.039 #[0.015, 0.039]
 #---------------------------------------------------------------------------------------------------------
 # Sample initial conditions-------------------------------------------------------
 
-init_date = pd.to_datetime('2020-03-02')#2020-05-14
+init_date = pd.to_datetime('2020-05-02')#2020-05-14
 
 # check, if the choosen init_date exists in the dataframe
 

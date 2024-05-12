@@ -20,7 +20,7 @@ from utility_intilization import get_value_by_date
 #from numerical_simulation import param_dict_r as param_dict,t_fit
 
 #---------------------------------------------
-df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_period_1st.csv')
+df = pd.read_csv(r'C:\Users\Evenezer kidane\PycharmProjects\MA\Ma\German_case_period_may_aug.csv')
 
 # -------------------------------------------------------------------------------Convert 'Date' column to datetime format
 df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
@@ -29,7 +29,7 @@ df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
 # Add the 'days' column
 df = add_day_name_column(df)
 df = add_date_name_column(df)
-print(df['n_confirmed'])
+print(df['Recovered'])
 # ----------------------------------------------------------------------------- second modification with w7_l
 df_observed = smooth_sundays_rolling_w7_l(df)
 
@@ -80,7 +80,7 @@ dev_symp = param_dict['dev_symp']
 mortality_isolated = param_dict['mortality_isolated']
 mortality_infected = param_dict['mortality_infected']'''
 # ------------------------------------------------------replacing values
-contacts = 3.9 # mean value, from the covimod
+contacts = 1.77 # mean value, from the covimod
 transmission_prob = 0.31
 total_population = 82000000
 reducing_transmission = 0.859
@@ -93,25 +93,33 @@ prob_quarant_inf = 0.81 #0.5
 test_asy = 0.2 # [0.171, 0.2]
 dev_symp = 0.19 # [0.1, 0.85]
 mortality_isolated = 0.02
-mortality_infected = 0.056
+mortality_infected = 3.29#0.056
 
 #tmax = t_fit  # maximum simulation day
-tmax = 24#269
+tmax = 90#269
 fslarge = 20
 fssmall = 16
 
 
 t_fit = df_observed['days'].max()
 # Plot simulation results
-t = np.linspace(0, t_fit, (t_fit + 1) * 10)
+t = np.linspace(0, t_fit, (t_fit +1) * 10)
+
 fig, ax = plt.subplots(figsize=[12, 7])
 
 #  simulated data
 solution_seaifrd = integrate.odeint(derivative_rhs, [S0, E0, A0, I0, F0, R0, D0], t)
-ax.plot(t, solution_seaifrd[:, 3], label='Confirmed Cases (simulated)', linestyle='--', marker='<', color='red', markersize=4)
+result_list = np.diff(solution_seaifrd[:, 6])#-----------------------------------------applying numpy for the difference
+print(result_list)
+t = t[:-1]#------------------------reducing last row, as my result_list is one row shorter
+print(f't  {t.shape}, result_list {result_list.shape}')
+ax.plot(t, result_list, label='Recovered Cases (simulated)', linestyle='--', marker='<', color='red', markersize=4)
+#print(f'simulated ,{solution_seaifrd[:, 5]}')
+#storing_list = solution_seaifrd[:, 5]
+#print(storing_list)
 
 # Overlay the graph of observed confirmed cases
-ax.plot(df['days'], df['n_confirmed'], label='Confirmed Cases (Observed)', linestyle='-', color='blue')
+ax.plot(df['days'], df['death'], label='Recovered Cases (Observed)', linestyle='-', color='blue')
 
 # title
 ax.set_xlabel('Days', fontsize=fslarge)
