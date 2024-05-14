@@ -132,22 +132,6 @@ array_recovered, array_dead = parse_ivp_ode(return_from_objective)
 
 
 
-def objective_function_(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
-                        exposed_period, asymptomatic_period, infectious_period, isolated_period,
-                        prob_asymptomatic, prob_quarant_inf, test_asy, dev_symp, mortality_isolated,
-                        mortality_infected):
-    temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
-                         exposed_period, asymptomatic_period, infectious_period,
-                         isolated_period, prob_asymptomatic,
-                         prob_quarant_inf, test_asy, dev_symp, mortality_isolated, mortality_infected)
-
-    recovered = temp.y[5]
-    dead = temp.y[6]
-    daily_recovered = recovered(t) - recovered(t - 1)
-    daily_dead = dead(t) - dead(t - 1)
-    return [daily_recovered, daily_dead]
-
-
 def objective_function_recoverd(t,  isolated_period ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
     contacts = 3.0
@@ -159,7 +143,7 @@ def objective_function_recoverd(t,  isolated_period ):
     infectious_period = 3.7
     #isolated_period = 11  # 11,23
     prob_asymptomatic = 0.34#0.2
-    prob_quarant_inf = 0.05
+    #prob_quarant_inf = 0.05
     test_asy = 0.271#0.171
     dev_symp = 0.125
     mortality_isolated = 0.02
