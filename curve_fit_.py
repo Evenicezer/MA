@@ -23,13 +23,14 @@ mortality_isolated = 0.002
 mortality_infected = 0.01
 
 # Sample initial conditions-------------------------------------------------------
-S0 = total_population - 30
-E0 = 20
-A0 = 0
-I0 = 10
-F0 = 0
-R0 = 0
-D0 = 0
+total_population = 82000000  # Total number of individuals
+E0 = 18633.333333333332
+A0 = 5064
+I0 = 136.89
+F0 = 1451
+R0 = 2065
+D0 = 47
+S0 = total_population - E0 - A0 - I0 - F0 - R0 - D0
 initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
 
 # Dataframe-------------------------------------------------
@@ -147,22 +148,22 @@ def objective_function_(t, contacts, initial_conditions, transmission_prob, tota
     return [daily_recovered, daily_dead]
 
 
-def objective_function(t,  isolated_period ):
+def objective_function_recoverd(t,  isolated_period ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
-    contacts = 2.0
-    transmission_prob = 0.3649
+    contacts = 3.0
+    transmission_prob = 0.3#0.3649
     total_population = 84000000
-    reducing_transmission = 0.764
+    reducing_transmission = 0.55#0.764
     exposed_period = 5.2  #
     asymptomatic_period = 7
     infectious_period = 3.7
     #isolated_period = 11  # 11,23
-    prob_asymptomatic = 0.2
+    prob_asymptomatic = 0.34#0.2
     prob_quarant_inf = 0.05
-    test_asy = 0.171
+    test_asy = 0.271#0.171
     dev_symp = 0.125
-    mortality_isolated = 0.002
-    mortality_infected = 0.01
+    mortality_isolated = 0.02
+    mortality_infected = 0.1
     temp = seaifrd_model(t, contacts, initial_conditions, transmission_prob, total_population, reducing_transmission,
                          exposed_period, asymptomatic_period, infectious_period,
                          isolated_period, prob_asymptomatic,
@@ -185,7 +186,7 @@ def objective_function(t,  isolated_period ):
     return daily_recovered_
 def objective_function_dead(t,  isolated_period ):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
-    contacts = 3.0
+    contacts = 2.0
     transmission_prob = 0.3649
     total_population = 84000000
     reducing_transmission = 0.764
@@ -229,17 +230,17 @@ t_fit = np.arange(0, tmax, 1)
 recov_dead = np.concatenate([array_recovered,array_dead])
 
 #print(f'length of the time t_fit_{len(t_fit_)}, tmax{(tmax)}, time t {len(t)},time t_fit_{len(t_fit)}, recov_dead{len(recov_dead)}')
-params_r, _ = curve_fit(objective_function, t_fit, array_recovered)#,method='trf')  # since curve_fit is expecting target values ydata as a single array; and x=time
-params_d, _ = curve_fit(objective_function_dead, t_fit, array_dead)#,method='trf')
+params_r, _ = curve_fit(objective_function_recoverd, t_fit, array_recovered)#,method='trf')  # since curve_fit is expecting target values ydata as a single array; and x=time
+#params_d, _ = curve_fit(objective_function_dead, t_fit, array_dead)#,method='trf')
 
 
 # assigning back
 # List of names corresponding to each value in params
-param_names = [ 'isolated_period']
+param_names_r = [ 'isolated_period_recovered']
 
 param_dict_r = {}
 
-for name, value in zip(param_names, params_r):
+for name, value in zip(param_names_r, params_r):
     param_dict_r[name] = value
 
 print(param_dict_r)
@@ -247,11 +248,12 @@ print(param_dict_r)
 #print(formatted_string)
 
 # for dead
-param_dict_d = {}
-for name, value in zip(param_names, params_d):
-    param_dict_d[name] = value
+##param_names_d = [ 'isolated_period_dead']
+##param_dict_d = {}
+##for name, value in zip(param_names_d, params_d):
+##    param_dict_d[name] = value
 
-print(param_dict_d)
+##print(param_dict_d)
 
 # for concantinated
 #param_dict_rd = {}
