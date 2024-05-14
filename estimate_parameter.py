@@ -35,7 +35,7 @@ initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
 
 
 # Dataframe-------------------------------------------------
-df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_.csv')
+df = pd.read_csv(r'C:\Users\kida_ev\PycharmProjects\pythonProject1\MA_EVNZR\German_case_wave_1to4.csv')
 
 # -------------------------------------------------------------------------------Convert 'Date' column to datetime format
 df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
