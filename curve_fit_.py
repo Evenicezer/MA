@@ -132,18 +132,18 @@ array_recovered, array_dead = parse_ivp_ode(return_from_objective)
 
 
 
-def objective_function_recoverd(t,  isolated_period ):
+def objective_function_recoverd(t,  contacts):
     #initial_conditions = [S0, E0, A0, I0, F0, R0, D0]
-    contacts = 3.0
+    #contacts = 3.0
     transmission_prob = 0.3#0.3649
     total_population = 84000000
     reducing_transmission = 0.55#0.764
     exposed_period = 5.2  #
     asymptomatic_period = 7
     infectious_period = 3.7
-    #isolated_period = 11  # 11,23
+    isolated_period = 12#11  # 11,23
     prob_asymptomatic = 0.34#0.2
-    #prob_quarant_inf = 0.05
+    prob_quarant_inf = 0.9303#0.05
     test_asy = 0.271#0.171
     dev_symp = 0.125
     mortality_isolated = 0.02
@@ -220,7 +220,7 @@ params_r, _ = curve_fit(objective_function_recoverd, t_fit, array_recovered)#,me
 
 # assigning back
 # List of names corresponding to each value in params
-param_names_r = [ 'isolated_period_recovered']
+param_names_r = [ 'contacts']
 
 param_dict_r = {}
 

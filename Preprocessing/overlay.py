@@ -80,20 +80,20 @@ dev_symp = param_dict['dev_symp']
 mortality_isolated = param_dict['mortality_isolated']
 mortality_infected = param_dict['mortality_infected']'''
 # ------------------------------------------------------replacing values
-contacts = 1.77 # mean value, from the covimod
-transmission_prob = 0.31
-total_population = 82000000
-reducing_transmission = 0.859
-exposed_period = 5.2  # this is the incubation period
-asymptomatic_period = 6  #[3, 14]
-infectious_period = 7.05 # [5.6, 8.5]
-isolated_period = 7 #21
-prob_asymptomatic = 0.25
-prob_quarant_inf = 0.81 #0.5
-test_asy = 0.2 # [0.171, 0.2]
-dev_symp = 0.19 # [0.1, 0.85]
+contacts = 0.9303
+transmission_prob = 0.3154  # 0.3649
+total_population = 80000000
+reducing_transmission = 0.55  # 0.764
+exposed_period = 5.2  #
+asymptomatic_period = 7
+infectious_period = 3.7
+isolated_period = 12  # 11  # 11,23
+prob_asymptomatic = 0.34  # 0.2
+prob_quarant_inf = 0.9303  # 0.05
+test_asy = 0.271  # 0.171
+dev_symp = 0.125
 mortality_isolated = 0.02
-mortality_infected = 3.29#0.056
+mortality_infected = 0.1
 
 #tmax = t_fit  # maximum simulation day
 tmax = 90#269
@@ -119,12 +119,12 @@ ax.plot(t, result_list, label='Recovered Cases (simulated)', linestyle='--', mar
 #print(storing_list)
 
 # Overlay the graph of observed confirmed cases
-ax.plot(df['days'], df['death'], label='Recovered Cases (Observed)', linestyle='-', color='blue')
+ax.plot(df['days'],  label='Recovered Cases (Observed)', linestyle='-', color='blue')
 
 # title
 ax.set_xlabel('Days', fontsize=fslarge)
 ax.set_ylabel('Number of individuals', fontsize=fslarge)
-ax.set_title('Number of daily infection', fontsize=fslarge)
+ax.set_title('Number of daily recovered', fontsize=fslarge)
 
 #  legend
 ax.legend(fontsize=fssmall, loc='center left', bbox_to_anchor=(1, 0.5))
